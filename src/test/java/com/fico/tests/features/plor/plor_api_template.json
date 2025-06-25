@@ -1,0 +1,46 @@
+{
+  "application": {
+    "applicationId": "APP-DEFAULT",
+    "bomVersionId": "v1.0",
+    "productCode": "CC001",
+    "applicationDate": "2024-01-01T00:00:00Z",
+    "channel": "ONLINE",
+    "requestedAmount": 10000
+  },
+  "applicants": [
+    {
+      "firstName": "John",
+      "lastName": "Doe",
+      "dateOfBirth": "1990-01-01",
+      "ssn": "123456789",
+      "email": "john.doe@example.com",
+      "phone": "555-123-4567",
+      "address": {
+        "street": "123 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "zipCode": "12345",
+        "country": "US"
+      },
+      "employment": {
+        "status": "EMPLOYED",
+        "employer": "ACME Corp",
+        "position": "Software Engineer",
+        "annualIncome": 75000,
+        "yearsEmployed": 3
+      },
+      "creditProfile": {
+        "creditScore": 720,
+        "creditHistory": "GOOD",
+        "bankruptcyHistory": false,
+        "delinquencyHistory": false
+      }
+    }
+  ],
+  "requestMetadata": {
+    "requestId": "REQ-DEFAULT",
+    "timestamp": "2024-01-01T00:00:00Z",
+    "source": "KARATE_TEST",
+    "version": "1.0"
+  }
+}

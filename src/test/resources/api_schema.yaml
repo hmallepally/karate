@@ -1,0 +1,274 @@
+openapi: 3.0.3
+info:
+  title: FICO PLOR API
+  description: API schema for FICO PLOR credit decisioning platform
+  version: 1.0.0
+
+components:
+  schemas:
+    Application:
+      type: object
+      required:
+        - applicationId
+        - bomVersionId
+        - productCode
+      properties:
+        applicationId:
+          type: string
+          description: Unique application identifier
+          example: "APP-1001"
+        bomVersionId:
+          type: string
+          description: Version identifier for routing
+          example: "v1.0"
+        productCode:
+          type: string
+          description: Product code for the application
+          example: "CC001"
+        applicationDate:
+          type: string
+          format: date-time
+          description: Application submission date
+        channel:
+          type: string
+          enum: [ONLINE, BRANCH, PHONE, MOBILE]
+          description: Application channel
+        requestedAmount:
+          type: number
+          description: Requested credit amount
+          minimum: 0
+
+    Applicant:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - dateOfBirth
+        - ssn
+      properties:
+        firstName:
+          type: string
+          description: Applicant first name
+          example: "John"
+        lastName:
+          type: string
+          description: Applicant last name
+          example: "Doe"
+        dateOfBirth:
+          type: string
+          format: date
+          description: Date of birth
+        ssn:
+          type: string
+          description: Social Security Number
+          pattern: "^[0-9]{9}$"
+        email:
+          type: string
+          format: email
+          description: Email address
+        phone:
+          type: string
+          description: Phone number
+        address:
+          $ref: '#/components/schemas/Address'
+        employment:
+          $ref: '#/components/schemas/Employment'
+        creditProfile:
+          $ref: '#/components/schemas/CreditProfile'
+
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zipCode:
+          type: string
+        country:
+          type: string
+          default: "US"
+
+    Employment:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [EMPLOYED, UNEMPLOYED, SELF_EMPLOYED, RETIRED, STUDENT]
+        employer:
+          type: string
+        position:
+          type: string
+        annualIncome:
+          type: number
+          minimum: 0
+        yearsEmployed:
+          type: number
+          minimum: 0
+
+    CreditProfile:
+      type: object
+      properties:
+        creditScore:
+          type: integer
+          minimum: 300
+          maximum: 850
+        creditHistory:
+          type: string
+          enum: [EXCELLENT, GOOD, FAIR, POOR, NO_HISTORY]
+        bankruptcyHistory:
+          type: boolean
+        delinquencyHistory:
+          type: boolean
+
+    CreditDecisioningResponse:
+      type: object
+      properties:
+        decisioning:
+          type: object
+          properties:
+            subProductDecisions:
+              type: array
+              items:
+                $ref: '#/components/schemas/SubProductDecision'
+        applicationId:
+          type: string
+        processedTimestamp:
+          type: string
+          format: date-time
+
+    SubProductDecision:
+      type: object
+      properties:
+        decisionSummary:
+          $ref: '#/components/schemas/DecisionSummary'
+        creditLineAssignment:
+          $ref: '#/components/schemas/CreditLineAssignment'
+        productCode:
+          type: string
+
+    DecisionSummary:
+      type: object
+      properties:
+        automatedDecisionCode:
+          type: string
+          enum: [A, D, P]
+          description: "A=Approved, D=Declined, P=Pending"
+        decisionCode:
+          type: string
+          enum: [A, D, P]
+        decisionReason:
+          type: string
+
+    CreditLineAssignment:
+      type: object
+      properties:
+        creditLimitAmount:
+          type: number
+          minimum: 0
+        interestRate:
+          type: number
+          minimum: 0
+
+paths:
+  /api/plor/v1/transaction:
+    post:
+      summary: Process credit application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                application:
+                  $ref: '#/components/schemas/Application'
+                applicants:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Applicant'
+      responses:
+        '200':
+          description: Successful processing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  transactionId:
+                    type: string
+                  creditDecisioning:
+                    $ref: '#/components/schemas/CreditDecisioningResponse'
+
+  /oauth/token:
+    post:
+      summary: Authenticate and get access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                grant_type:
+                  type: string
+                client_id:
+                  type: string
+                client_secret:
+                  type: string
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  token_type:
+                    type: string
+                  expires_in:
+                    type: integer
+
+  /api/dm/decision:
+    post:
+      summary: Make decision using DM platform
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                applicationId:
+                  type: string
+                riskFactors:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Decision completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  decisionId:
+                    type: string
+                  decision:
+                    type: object
+                    properties:
+                      outcome:
+                        type: string
+                      confidence:
+                        type: number
+                      riskScore:
+                        type: integer
