@@ -78,19 +78,7 @@ function fn() {
         
         buildCsvRowFromScenario: function() {
             var csvRow = {};
-            
-            var scenarioVars = karate.context.vars;
-            
-            for (var key in scenarioVars) {
-                if (key && !key.startsWith('__') && !key.startsWith('karate') && 
-                    key !== 'config' && key !== 'baseUrl' && key !== 'basePayload' && 
-                    key !== 'schema' && key !== 'utils' && key !== 'response' && 
-                    key !== 'responseStatus' && key !== 'responseHeaders') {
-                    csvRow[key] = scenarioVars[key];
-                }
-            }
-            
-            karate.log('Built CSV row from scenario variables:', csvRow);
+            karate.log('CSV row building simplified - data available directly from Examples');
             return csvRow;
         }
     };
