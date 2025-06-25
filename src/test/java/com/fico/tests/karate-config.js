@@ -74,6 +74,25 @@ function fn() {
                     '| Message:', result.message);
             }
             karate.log('===================================');
+        },
+        
+        buildCsvRowFromScenario: function() {
+            var csvRow = {};
+            var csvData = read('classpath:testdata/plor_test_scenarios.csv');
+            if (csvData && csvData.length > 0) {
+                var headers = Object.keys(csvData[0]);
+                for (var i = 0; i < headers.length; i++) {
+                    var header = headers[i];
+                    try {
+                        var value = karate.get('<' + header + '>');
+                        csvRow[header] = value;
+                    } catch (e) {
+                        karate.log('Warning: Could not get value for header:', header);
+                        csvRow[header] = '';
+                    }
+                }
+            }
+            return csvRow;
         }
     };
     

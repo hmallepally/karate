@@ -9,8 +9,8 @@ Background:
 @smoke @regression
 Scenario Outline: Process PLOR application and validate decisioning for <testCaseName>
 
-  # Convert CSV row to a map for dynamic processing
-  * def csvRow = { testCaseName: '<testCaseName>', 'application.applicationId': '<application.applicationId>', 'application.bomVersionId': '<application.bomVersionId>', 'applicants[0].firstName': '<applicants[0].firstName>', 'applicants[0].lastName': '<applicants[0].lastName>', 'applicants[0].creditProfile.creditScore': '<applicants[0].creditProfile.creditScore>', 'response.creditDecisioning.decisioning.subProductDecisions[0].decisionSummary.automatedDecisionCode': '<response.creditDecisioning.decisioning.subProductDecisions[0].decisionSummary.automatedDecisionCode>', 'response.creditDecisioning.decisioning.subProductDecisions[0].creditLineAssignment.creditLimitAmount': '<response.creditDecisioning.decisioning.subProductDecisions[0].creditLineAssignment.creditLimitAmount>' }
+  # Automatically build CSV row map using utility function
+  * def csvRow = utils.buildCsvRowFromScenario()
   
   # Dynamically populate request payload from CSV using schema paths
   * def requestPayload = utils.populateRequestFromCsv(basePayload, csvRow)
@@ -36,7 +36,7 @@ Scenario Outline: Process PLOR application and validate decisioning for <testCas
   * assert allPassed == true
   
   # Additional structural validations
-  * match response.creditDecisioning.applicationId == csvRow['application.applicationId']
+  * match response.creditDecisioning.applicationId == '<application.applicationId>'
 
 Examples:
 | karate.read('classpath:testdata/plor_test_scenarios.csv') |
