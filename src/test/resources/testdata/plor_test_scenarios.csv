@@ -1,0 +1,11 @@
+testCaseName,application.applicationId,application.bomVersionId,applicants[0].firstName,applicants[0].lastName,applicants[0].creditProfile.creditScore,response.creditDecisioning.decisioning.subProductDecisions[0].decisionSummary.automatedDecisionCode,response.creditDecisioning.decisioning.subProductDecisions[0].creditLineAssignment.creditLimitAmount
+HappyPath_LowRisk_Approve,APP-1001,v1.0,John,Doe,750,A,15000
+Decline_HighRisk_Applicant,APP-1002,v1.0,Jane,Smith,580,D,0
+Pending_ManualReview,APP-1003,v1.0,Bob,Pending,650,P,5000
+HighCreditScore_Approve,APP-1004,v1.0,Alice,Johnson,800,A,15000
+LowCreditScore_Decline,APP-1005,v1.0,Charlie,Risk,520,D,0
+EdgeCase_BoundaryScore,APP-1006,v1.0,David,Wilson,620,A,15000
+NewCustomer_NoHistory,APP-1007,v1.0,Emma,Brown,680,A,15000
+ExistingCustomer_GoodHistory,APP-1008,v1.0,Frank,Miller,720,A,15000
+HighIncome_LowScore,APP-1009,v1.0,Grace,Risk,590,D,0
+LowIncome_HighScore,APP-1010,v1.0,Henry,Davis,780,A,15000
