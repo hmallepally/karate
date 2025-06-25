@@ -14,9 +14,9 @@ function fn() {
     config.env = env;
     
     if (env == 'dev') {
-        config.baseUrl = 'http://localhost:8080';
+        config.baseUrl = 'http://localhost:8090';
     } else if (env == 'test') {
-        config.baseUrl = 'http://test-server:8080';
+        config.baseUrl = 'http://test-server:8090';
     } else if (env == 'prod') {
         config.baseUrl = 'https://api.fico.com';
     }

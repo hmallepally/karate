@@ -57,7 +57,7 @@ A comprehensive, data-driven API test automation framework using Karate with Jav
    ```bash
    ./gradlew bootRun
    ```
-   The mock server will start on `http://localhost:8080`
+   The mock server will start on `http://localhost:8090`
 
 4. **Run tests** (in a separate terminal)
    ```bash
@@ -68,8 +68,8 @@ A comprehensive, data-driven API test automation framework using Karate with Jav
 
 The framework supports multiple environments:
 
-- **dev** (default): `http://localhost:8080`
-- **test**: `http://test-server:8080`
+- **dev** (default): `http://localhost:8090`
+- **test**: `http://test-server:8090`
 - **prod**: `https://api.fico.com`
 
 Set environment using:
@@ -287,8 +287,8 @@ config.utils.customValidator = function(data) {
 
 1. **Mock Server Won't Start**
    ```bash
-   # Check if port 8080 is already in use
-   lsof -i :8080
+   # Check if port 8090 is already in use
+   lsof -i :8090
    
    # Kill existing process if needed
    kill -9 <PID>
@@ -297,7 +297,7 @@ config.utils.customValidator = function(data) {
 2. **Tests Fail to Connect**
    ```bash
    # Verify mock server is running
-   curl http://localhost:8080/health
+   curl http://localhost:8090/health
    
    # Check environment configuration
    ./gradlew test -Dkarate.env=dev --info
