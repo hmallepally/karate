@@ -77,16 +77,20 @@ function fn() {
         },
         
         buildCsvRowFromScenario: function() {
+            var csvData = read('classpath:testdata/plor_test_scenarios.csv');
             var csvRow = {};
             
-            var scenarioVars = karate.context.vars;
-            
-            for (var key in scenarioVars) {
-                if (key && !key.startsWith('__') && !key.startsWith('karate') && 
-                    key !== 'config' && key !== 'baseUrl' && key !== 'basePayload' && 
-                    key !== 'schema' && key !== 'utils' && key !== 'response' && 
-                    key !== 'responseStatus' && key !== 'responseHeaders') {
-                    csvRow[key] = scenarioVars[key];
+            if (csvData && csvData.length > 0) {
+                var headers = Object.keys(csvData[0]);
+                
+                for (var i = 0; i < headers.length; i++) {
+                    var header = headers[i];
+                    var value = karate.get(header);
+                    if (value !== null && value !== undefined) {
+                        csvRow[header] = value;
+                    } else {
+                        csvRow[header] = '';
+                    }
                 }
             }
             
