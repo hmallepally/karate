@@ -11,16 +11,16 @@ class TestRunner {
     
     @Karate.Test
     Karate testAll() {
-        return Karate.run("features").relativeTo(getClass());
+        return Karate.run("features/plor").relativeTo(getClass());
     }
     
     @Karate.Test
     Karate testSmoke() {
-        return Karate.run("features").tags("@smoke").relativeTo(getClass());
+        return Karate.run("features/plor").tags("@smoke").relativeTo(getClass());
     }
     
     @Karate.Test
     Karate testRegression() {
-        return Karate.run("features").tags("@regression").relativeTo(getClass());
+        return Karate.run("features/plor").tags("@regression").relativeTo(getClass());
     }
 }
