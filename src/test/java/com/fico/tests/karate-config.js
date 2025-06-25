@@ -78,20 +78,19 @@ function fn() {
         
         buildCsvRowFromScenario: function() {
             var csvRow = {};
-            var csvData = read('classpath:testdata/plor_test_scenarios.csv');
-            if (csvData && csvData.length > 0) {
-                var headers = Object.keys(csvData[0]);
-                for (var i = 0; i < headers.length; i++) {
-                    var header = headers[i];
-                    try {
-                        var value = karate.get('<' + header + '>');
-                        csvRow[header] = value;
-                    } catch (e) {
-                        karate.log('Warning: Could not get value for header:', header);
-                        csvRow[header] = '';
-                    }
+            
+            var scenarioVars = karate.context.vars;
+            
+            for (var key in scenarioVars) {
+                if (key && !key.startsWith('__') && !key.startsWith('karate') && 
+                    key !== 'config' && key !== 'baseUrl' && key !== 'basePayload' && 
+                    key !== 'schema' && key !== 'utils' && key !== 'response' && 
+                    key !== 'responseStatus' && key !== 'responseHeaders') {
+                    csvRow[key] = scenarioVars[key];
                 }
             }
+            
+            karate.log('Built CSV row from scenario variables:', csvRow);
             return csvRow;
         }
     };
