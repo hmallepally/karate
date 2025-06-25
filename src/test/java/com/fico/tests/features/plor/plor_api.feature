@@ -4,21 +4,17 @@ Background:
   * url baseUrl
   * def basePayload = karate.basePayload
   * def schema = karate.schema
+  * def utils = karate.utils
 
 @smoke @regression
 Scenario Outline: Process PLOR application and validate decisioning for <testCaseName>
 
-  # Create a fresh request payload for this test run
-  * def requestPayload = karate.clone(basePayload)
+  # Convert CSV row to a map for dynamic processing
+  * def csvRow = { testCaseName: '<testCaseName>', 'application.applicationId': '<application.applicationId>', 'application.bomVersionId': '<application.bomVersionId>', 'applicants[0].firstName': '<applicants[0].firstName>', 'applicants[0].lastName': '<applicants[0].lastName>', 'applicants[0].creditProfile.creditScore': '<applicants[0].creditProfile.creditScore>', 'response.creditDecisioning.decisioning.subProductDecisions[0].decisionSummary.automatedDecisionCode': '<response.creditDecisioning.decisioning.subProductDecisions[0].decisionSummary.automatedDecisionCode>', 'response.creditDecisioning.decisioning.subProductDecisions[0].creditLineAssignment.creditLimitAmount': '<response.creditDecisioning.decisioning.subProductDecisions[0].creditLineAssignment.creditLimitAmount>' }
   
-  # Dynamically set request values from the CSV
-  * set requestPayload.application.applicationId = <application.applicationId>
-  * set requestPayload.applicants[0].firstName = <applicants[0].firstName>
-  * set requestPayload.applicants[0].lastName = <applicants[0].lastName>
-  
-  # Set additional fields if provided
-  * if (<application.bomVersionId>) set requestPayload.application.bomVersionId = <application.bomVersionId>
-  * if (<applicants[0].creditProfile.creditScore>) set requestPayload.applicants[0].creditProfile.creditScore = <applicants[0].creditProfile.creditScore>
+  # Dynamically populate request payload from CSV using schema paths
+  * def requestPayload = utils.populateRequestFromCsv(basePayload, csvRow)
+  * karate.log('Generated request payload:', requestPayload)
   
   # Execute the API call
   Given path '/api/plor/v1/transaction'
@@ -31,16 +27,16 @@ Scenario Outline: Process PLOR application and validate decisioning for <testCas
   * match response.transactionId == '#string'
   * match response.creditDecisioning == '#object'
   
-  # Validate the response against the CSV expectations
-  * def expectedDecisionCode = <response.creditDecisioning.decisioning.subProductDecisions[0].decisionSummary.automatedDecisionCode>
-  * def expectedCreditLimit = <response.creditDecisioning.decisioning.subProductDecisions[0].creditLineAssignment.creditLimitAmount>
+  # Dynamically validate response against CSV expectations using JSON paths
+  * def validationResults = utils.validateResponseFromCsv(response, csvRow)
+  * utils.logValidationResults(validationResults)
   
-  * match response.creditDecisioning.decisioning.subProductDecisions[0].decisionSummary.automatedDecisionCode == expectedDecisionCode
-  * match response.creditDecisioning.decisioning.subProductDecisions[0].creditLineAssignment.creditLimitAmount == expectedCreditLimit
+  # Assert that all validations passed
+  * def allPassed = utils.allValidationsPassed(validationResults)
+  * assert allPassed == true
   
-  # Additional validations
-  * match response.creditDecisioning.decisioning.subProductDecisions[0].decisionSummary.decisionCode == expectedDecisionCode
-  * match response.creditDecisioning.applicationId == <application.applicationId>
+  # Additional structural validations
+  * match response.creditDecisioning.applicationId == csvRow['application.applicationId']
 
 Examples:
 | karate.read('classpath:testdata/plor_test_scenarios.csv') |

@@ -94,6 +94,22 @@ Run specific test categories using tags:
 ./gradlew test -Dkarate.options="--tags ~@slow"
 ```
 
+### Dynamic JSON Processing
+
+The framework uses **dynamic JSON manipulation** to keep tests agnostic to payload structure changes:
+
+#### Request Population
+- CSV headers use **dot-notation** (a.b.c format) to map to JSON paths
+- `YamlSchemaUtils.populateJsonFromCsv()` automatically populates request templates
+- Supports nested objects and arrays: `applicants[0].firstName`
+- Automatic type conversion (strings → numbers, booleans)
+
+#### Response Validation  
+- CSV headers with **"response."** prefix define expected response values
+- `YamlSchemaUtils.validateResponseFromCsv()` validates using JSON paths
+- Detailed validation results with clear error messages
+- Comprehensive logging for debugging
+
 ### Creating New Test Scenarios
 
 1. **Add test data to CSV**
@@ -110,6 +126,15 @@ Run specific test categories using tags:
    - Prefix response validations with `response.`: `response.creditDecisioning.decisioning...`
 
 3. **Test automatically picks up new CSV rows** - no code changes needed!
+
+### Schema-Driven Architecture
+
+**Key Benefit**: Only the YAML schema and payload template need updates when API structure changes!
+
+- **Feature files remain unchanged** when API structure evolves
+- **CSV structure stays consistent** across API versions
+- **Dynamic processing** handles complex nested JSON automatically
+- **Error handling** provides clear feedback for debugging
 
 ### Mock Server Endpoints
 
@@ -167,14 +192,54 @@ components:
           type: number
 ```
 
+### Dynamic JSON Processing
+
+The enhanced `YamlSchemaUtils` provides powerful dynamic capabilities:
+
+#### Core Methods
+```java
+// Populate request from CSV using dot-notation paths
+Map<String, Object> populatedJson = YamlSchemaUtils.populateJsonFromCsv(templateJson, csvRow);
+
+// Validate response against CSV expectations
+Map<String, ValidationResult> results = YamlSchemaUtils.validateResponseFromCsv(responseJson, csvRow);
+```
+
+#### Supported Path Formats
+- **Simple paths**: `application.applicationId`
+- **Array access**: `applicants[0].firstName`
+- **Nested objects**: `creditProfile.creditScore`
+- **Complex paths**: `decisioning.subProductDecisions[0].decisionSummary.automatedDecisionCode`
+
+#### Type Conversion
+- **Numbers**: `"750"` → `750` (integer), `"15.5"` → `15.5` (double)
+- **Booleans**: `"true"` → `true`, `"false"` → `false`
+- **Strings**: Preserved as-is
+
 ### Custom Utilities
 
-Add utility methods in `YamlSchemaUtils.java`:
+The utility class provides comprehensive JSON manipulation:
 
 ```java
-public static boolean validateSchema(Map<String, Object> data, String schemaPath) {
-    return true;
-}
+// Load schema once at startup
+Map<String, Object> schema = YamlSchemaUtils.loadSchemaAsMap("classpath:api_schema.yaml");
+
+// Dynamic request population
+Map<String, Object> request = YamlSchemaUtils.populateJsonFromCsv(template, csvData);
+
+// Response validation with detailed results
+Map<String, ValidationResult> validation = YamlSchemaUtils.validateResponseFromCsv(response, csvData);
+```
+
+### Adding New Utility Functions
+
+Extend the `config.utils` object in `karate-config.js`:
+
+```javascript
+config.utils.customValidator = function(data) {
+    // Custom validation logic
+    return YamlSchemaUtils.validateResponseFromCsv(data.response, data.csvRow);
+};
 ```
 
 ## 📋 Best Practices
