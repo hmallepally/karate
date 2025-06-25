@@ -30,6 +30,14 @@ test {
     outputs.upToDateWhen { false }
 }
 
+processTestResources {
+    from('src/test/java') {
+        include '**/*.feature'
+        include '**/*.json'
+        include '**/*.js'
+    }
+}
+
 task karateDebug(type: JavaExec) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'com.intuit.karate.cli.Main'
